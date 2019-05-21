@@ -26,9 +26,12 @@ def pending():
         json = jsonify([dict(row) for row in result])
         return json
 
-    except:
-        app.logger.exception('Error')
-        return abort(500)
+    except BadRequest:
+        app.logger.exception("Bad request")
+        raise
+    except Exception:
+        app.logger.exception('Fatal error')
+        abort(500)
 
 
 @app.route('/photos/process', methods=['POST'])
@@ -36,7 +39,7 @@ def process():
     try:
         uuids = request.get_json(cache=False)
         if uuids is None or len(uuids) == 0:
-            raise BadRequest('Invalid uuids')
+            abort(400)
 
         producer = get_producer()
 
@@ -45,12 +48,12 @@ def process():
 
         return jsonify(message='Success'), 202
 
-    except BadRequest as e:
-        app.logger.exception(e)
-        return abort(400)
-    except:
-        app.logger.exception('Error')
-        return abort(500)
+    except BadRequest:
+        app.logger.exception("Bad request")
+        raise
+    except Exception:
+        app.logger.exception("Fatal error")
+        abort(500)
 
 
 @app.errorhandler(400)

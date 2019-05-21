@@ -56,7 +56,7 @@ def process_image(ch, method_frame, header_frame, body):
 
         db.commit()
 
-    except:
+    except Exception:
         logger.exception('Error')
         # Rolls back whatever change on DB
         db.rollback()
@@ -109,7 +109,7 @@ def main():
         init_consumer()
         consumer.start()
 
-    except:
+    except Exception:
         logger.exception('Error')
 
     finally:
