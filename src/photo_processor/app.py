@@ -2,6 +2,7 @@
 import urllib.request
 from PIL import Image
 import logging
+from uuid import UUID
 from db import DB
 from consumer import Consumer
 from config import Config
@@ -15,12 +16,17 @@ db = None
 def process_image(ch, method_frame, header_frame, body):
     photo_uuid = body.decode()
 
+    if not check_uuid(photo_uuid):
+        logger.error('Invalid uuid %s', photo_uuid)
+        return
+
     try:
         photo = db.get_photo(photo_uuid)
         # Check if uuid is valid and if photo has `pending` state
         # If not, abort
         if photo is None or photo['status'] != 'pending':
-            logger.error('Invalid uuid %s', photo_uuid)
+            logger.error('Photo does not exist or status is not pending. uuid %s',
+                          photo_uuid)
             db.commit()
             return
 
@@ -30,8 +36,8 @@ def process_image(ch, method_frame, header_frame, body):
             raise Exception('Error updating photo status to processing.')
 
         # Download photo using `photos.url`
-        photo = download(photo['url'])
-        if photo is None:
+        photo_file = download(photo['url'])
+        if photo_file is None:
             raise Exception('Error downloading image from url %s',
                             photo['url'])
 
@@ -39,9 +45,9 @@ def process_image(ch, method_frame, header_frame, body):
         # maintaining the aspect ratio. Store thumbnail file on
         # mounted `/waldo-app-thumbs` directory
         thumbnail_file_path = getFilePath(photo['url'])
-        _, width, height = create_thumbnail(photo, thumbnail_file_path)
+        _, width, height = create_thumbnail(photo_file, thumbnail_file_path)
 
-        photo.close()
+        photo_file.close()
 
         # Store a new row on db table `photo_thumbnails`
         # with the thumbnail details. For the `photo_thumbnails.url`
@@ -65,6 +71,14 @@ def process_image(ch, method_frame, header_frame, body):
         # Update `photos.status` to `failed`.
         db.update_photo_status(photo_uuid, 'failed')
         db.commit()
+
+
+def check_uuid(uuid):
+    try:
+        UUID(uuid)
+        return True
+    except ValueError:
+        return False
 
 
 def create_thumbnail(original_file, thumbnail_file_path):

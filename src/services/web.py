@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request, abort, g
 from werkzeug.exceptions import BadRequest
+from uuid import UUID
 from config import Config
 from db import DB
 from producer import Producer
@@ -34,11 +35,20 @@ def pending():
         abort(500)
 
 
+def check_uuids(uuids):
+    try:
+        for uuid in uuids:
+            UUID(uuid)
+        return True
+    except ValueError:
+        return False
+
+
 @app.route('/photos/process', methods=['POST'])
 def process():
     try:
         uuids = request.get_json(cache=False)
-        if uuids is None or len(uuids) == 0:
+        if uuids is None or len(uuids) == 0 or not check_uuids(uuids):
             abort(400)
 
         producer = get_producer()
