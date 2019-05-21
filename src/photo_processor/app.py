@@ -29,9 +29,9 @@ def process_image(ch, method_frame, header_frame, body):
         if rows == 0:
             raise Exception('Error updating photo status to processing.')
 
-        # Download image using `photos.url`
-        img = download(photo['url'])
-        if img is None:
+        # Download photo using `photos.url`
+        photo = download(photo['url'])
+        if photo is None:
             raise Exception('Error downloading image from url %s',
                             photo['url'])
 
@@ -39,7 +39,9 @@ def process_image(ch, method_frame, header_frame, body):
         # maintaining the aspect ratio. Store thumbnail file on
         # mounted `/waldo-app-thumbs` directory
         thumbnail_file_path = getFilePath(photo['url'])
-        _, width, height = create_thumbnail(img, thumbnail_file_path)
+        _, width, height = create_thumbnail(photo, thumbnail_file_path)
+
+        photo.close()
 
         # Store a new row on db table `photo_thumbnails`
         # with the thumbnail details. For the `photo_thumbnails.url`
