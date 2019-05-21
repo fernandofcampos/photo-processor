@@ -13,5 +13,8 @@ start:
 db-schema:
 	docker exec -i postgres psql $(PG_CONNECTION_URI) -t < scripts/db-schema.sql
 
+db-test-set:
+	docker exec -i postgres psql $(PG_CONNECTION_URI) -t < scripts/db-test-set.sql
+
 psql:
 	docker exec -it postgres psql $(PG_CONNECTION_URI)
