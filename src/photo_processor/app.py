@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import os
 import urllib.request
 from PIL import Image
 import logging
@@ -26,7 +27,7 @@ def process_image(ch, method_frame, header_frame, body):
         # If not, abort
         if photo is None or photo['status'] != 'pending':
             logger.error('Photo does not exist or status is not pending. uuid %s',
-                          photo_uuid)
+                         photo_uuid)
             db.commit()
             return
 
@@ -97,7 +98,7 @@ def download(url):
 
 
 def getFilePath(url):
-    return '/waldo-app-thumbs/' + getFileName(url)
+    return os.path.relpath(Config.THUMBS_FOLDER) + "/" + getFileName(url)
 
 
 def getFileName(url):

@@ -9,6 +9,7 @@ services:
     environment:
       PG_CONNECTION_URI: ${PG_CONNECTION_URI}
       AMQP_URI: ${AMQP_URI}
+      THUMBS_FOLDER: /waldo-app-thumbs
     volumes:
       - /waldo-app-thumbs
     depends_on:
