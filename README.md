@@ -32,4 +32,4 @@ Web app can be accessed at:
 
 ### Assumptions
 
-- Consumer is always ACKing messages. Errors in processing are recorded only on the database with `failed` status.
+- Consumer is ACKing all messages. Errors in processing are recorded only on the database with `failed` status.
