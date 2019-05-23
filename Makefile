@@ -18,3 +18,6 @@ db-test-set:
 
 psql:
 	docker exec -it postgres psql $(PG_CONNECTION_URI)
+
+test:
+	docker-compose -f docker-compose-test.yml up --build --exit-code-from app

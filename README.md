@@ -24,6 +24,9 @@ Fill the db with a test set:
 Postgres PSQL can be accessed via:
 - `make psql`
 
+Run e2e tests:
+- `make test`
+
 RabbitMQ management console can be accessed at:  
 `http://localhost:15672/`  
 
